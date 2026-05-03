@@ -27,6 +27,14 @@ public class Main extends ApplicationAdapter {
     private Rectangle botaoPontuacao;
     private float tempoAnimacao = 0;
 
+
+    private Goleiro goleiro;
+    private Bola bola;
+    private boolean telaMenu = true;
+
+    private float worldWidth;
+    private float worldHeight;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -36,25 +44,52 @@ public class Main extends ApplicationAdapter {
         fundoMenu = new Texture("menu_gol.png");
         goleiroParado = new Texture("goleiro.png");
         goleiroPulando = new Texture("goleiro_pulando.png");
+        goleiro = new Goleiro("goleiro.png", "goleiro_pulando.png", "goleiro_caido.png");
+        bola = new Bola("bola.png");
 
         font.getData().setScale(1.4f);
 
         botaoIniciar = new Rectangle(220, 230, 200, 45);
         botaoComoJogar = new Rectangle(220, 170, 200, 45);
         botaoPontuacao = new Rectangle(220, 110, 200, 45);
+
+        worldWidth = Gdx.graphics.getWidth();
+        worldHeight = Gdx.graphics.getHeight();
+
+        goleiro.setDefaultPosition(worldWidth/2, worldHeight/3);
     }
 
     @Override
     public void render() {
-        verificarClique();
-        tempoAnimacao += Gdx.graphics.getDeltaTime();
+        // if (telaMenu) {
+        //     verificarClique();
+        //     tempoAnimacao += Gdx.graphics.getDeltaTime();
 
-        ScreenUtils.clear(0.1f, 0.45f, 0.2f, 1f);
+        //     ScreenUtils.clear(0.1f, 0.45f, 0.2f, 1f);
+        //     batch.begin();
+        //     batch.draw(fundoMenu, 0, 0, 640, 480);
+        //     batch.end();
+        //     desenharMenu();
+        // } else {
+        //     batch.begin();
+        //     goleiro.draw(batch);
+        //     bola.draw(batch);
+        //     batch.end();
+        // }
+        ScreenUtils.clear(Color.BLACK);
+        float deltaTime = Gdx.graphics.getDeltaTime();
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            goleiro.dive(Direction.RIGHT);
+        }
+        goleiro.update(deltaTime);
+
         batch.begin();
-        batch.draw(fundoMenu, 0, 0, 640, 480);
+        goleiro.draw(batch);
         batch.end();
 
-        desenharMenu();
+
+        
     }
 
     @Override
@@ -81,6 +116,7 @@ public class Main extends ApplicationAdapter {
 
         if (botaoIniciar.contains(mouseX, mouseY)) {
             System.out.println("Botao iniciar clicado");
+            telaMenu = false;
         } else if (botaoComoJogar.contains(mouseX, mouseY)) {
             System.out.println("Botao como jogar clicado");
         } else if (botaoPontuacao.contains(mouseX, mouseY)) {

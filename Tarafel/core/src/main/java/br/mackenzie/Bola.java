@@ -4,9 +4,14 @@ public class Bola extends GameObject {
     public Bola(String texturePath, String soundPath) {
         super(texturePath, soundPath);
     }
+    
+    public Bola(String texturePath) {
+        super(texturePath);
+    }
 
     @Override
-    public void update() {
+    public void update(float deltaTime) {
+        // Implementar lógica de movimento da bola 
 
     }
 
