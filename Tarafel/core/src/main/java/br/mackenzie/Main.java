@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -22,9 +21,9 @@ public class Main extends ApplicationAdapter {
     private Texture goleiroParado;
     private Texture goleiroPulando;
 
-    private Rectangle botaoIniciar;
-    private Rectangle botaoComoJogar;
-    private Rectangle botaoPontuacao;
+    private Botao botaoIniciar;
+    private Botao botaoComoJogar;
+    private Botao botaoPontuacao;
     private float tempoAnimacao = 0;
 
     @Override
@@ -39,9 +38,9 @@ public class Main extends ApplicationAdapter {
 
         font.getData().setScale(1.4f);
 
-        botaoIniciar = new Rectangle(220, 230, 200, 45);
-        botaoComoJogar = new Rectangle(220, 170, 200, 45);
-        botaoPontuacao = new Rectangle(220, 110, 200, 45);
+        botaoIniciar = new Botao(220, 230, 200, 45, "INICIAR", "Botao iniciar clicado");
+        botaoComoJogar = new Botao(220, 170, 200, 45, "COMO JOGAR", "Botao como jogar clicado");
+        botaoPontuacao = new Botao(220, 110, 200, 45, "PONTUACAO", "Botao pontuacao clicado");
     }
 
     @Override
@@ -79,21 +78,21 @@ public class Main extends ApplicationAdapter {
         float mouseX = Gdx.input.getX();
         float mouseY = 480 - Gdx.input.getY();
 
-        if (botaoIniciar.contains(mouseX, mouseY)) {
-            System.out.println("Botao iniciar clicado");
-        } else if (botaoComoJogar.contains(mouseX, mouseY)) {
-            System.out.println("Botao como jogar clicado");
-        } else if (botaoPontuacao.contains(mouseX, mouseY)) {
-            System.out.println("Botao pontuacao clicado");
+        if (botaoIniciar.contem(mouseX, mouseY)) {
+            botaoIniciar.clicar();
+        } else if (botaoComoJogar.contem(mouseX, mouseY)) {
+            botaoComoJogar.clicar();
+        } else if (botaoPontuacao.contem(mouseX, mouseY)) {
+            botaoPontuacao.clicar();
         }
     }
 
     private void desenharMenu() {
         desenharTitulo("TARAFEL", 355);
         desenharGoleiro();
-        desenharBotao(botaoIniciar, "INICIAR");
-        desenharBotao(botaoComoJogar, "COMO JOGAR");
-        desenharBotao(botaoPontuacao, "PONTUACAO");
+        botaoIniciar.desenhar(shape, batch, font, layout);
+        botaoComoJogar.desenhar(shape, batch, font, layout);
+        botaoPontuacao.desenhar(shape, batch, font, layout);
     }
 
     private void desenharGoleiro() {
@@ -127,26 +126,6 @@ public class Main extends ApplicationAdapter {
         font.getData().setScale(2.2f);
         escreverTextoCentralizado(texto, y);
         font.getData().setScale(1.4f);
-    }
-
-    private void desenharBotao(Rectangle botao, String texto) {
-        shape.begin(ShapeRenderer.ShapeType.Filled);
-        shape.setColor(new Color(0.05f, 0.25f, 0.12f, 0.9f));
-        shape.rect(botao.x, botao.y, botao.width, botao.height);
-        shape.end();
-
-        shape.begin(ShapeRenderer.ShapeType.Line);
-        shape.setColor(Color.WHITE);
-        shape.rect(botao.x, botao.y, botao.width, botao.height);
-        shape.end();
-
-        batch.begin();
-        font.setColor(Color.WHITE);
-        layout.setText(font, texto);
-        font.draw(batch, texto,
-            botao.x + (botao.width - layout.width) / 2,
-            botao.y + 29);
-        batch.end();
     }
 
     private void escreverTextoCentralizado(String texto, float y) {
