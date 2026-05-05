@@ -5,10 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -32,9 +32,9 @@ public class Main extends ApplicationAdapter {
         shape = new ShapeRenderer();
         font = new BitmapFont();
         layout = new GlyphLayout();
-        fundoMenu = new Texture("menu_gol.png");
-        goleiroParado = new Texture("goleiro.png");
-        goleiroPulando = new Texture("goleiro_pulando.png");
+        fundoMenu = new Texture("img/menu_gol.png");
+        goleiroParado = new Texture("img/goleiro.png");
+        goleiroPulando = new Texture("img/goleiro_pulando.png");
 
         font.getData().setScale(1.4f);
 
