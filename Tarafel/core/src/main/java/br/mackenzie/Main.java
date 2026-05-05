@@ -19,7 +19,7 @@ public class Main extends ApplicationAdapter {
     private GlyphLayout layout;
     private Texture fundoMenu;
     private Texture goleiroParado;
-    private Texture goleiroPulando;
+    // private Texture goleiroPulando;
 
     private Botao botaoIniciar;
     private Botao botaoComoJogar;
