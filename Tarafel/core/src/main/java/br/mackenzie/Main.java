@@ -13,13 +13,20 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
+    private enum Tela {
+        MENU, JOGO
+    }
+
     private SpriteBatch batch;
     private ShapeRenderer shape;
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture fundoMenu;
+    private Texture fundoJogo;
     private Texture goleiroParado;
     private Texture goleiroPulando;
+    private Goleiro goleiro;
+    private Tela telaAtual = Tela.MENU;
 
     private Botao botaoIniciar;
     private Botao botaoComoJogar;
@@ -33,8 +40,11 @@ public class Main extends ApplicationAdapter {
         font = new BitmapFont();
         layout = new GlyphLayout();
         fundoMenu = new Texture("img/menu_gol.png");
+        fundoJogo = new Texture("img/gol_facil.png");
         goleiroParado = new Texture("img/goleiro.png");
         goleiroPulando = new Texture("img/goleiro_pulando.png");
+        goleiro = new Goleiro("img/goleiro.png", "img/goleiro_pulando.png", "img/goleiro_caido.png");
+        goleiro.setDefaultPosition(278, 70);
 
         font.getData().setScale(1.4f);
 
@@ -46,9 +56,17 @@ public class Main extends ApplicationAdapter {
     @Override
     public void render() {
         verificarClique();
-        tempoAnimacao += Gdx.graphics.getDeltaTime();
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        tempoAnimacao += deltaTime;
 
         ScreenUtils.clear(0.1f, 0.45f, 0.2f, 1f);
+
+        if (telaAtual == Tela.JOGO) {
+            atualizarJogo(deltaTime);
+            desenharJogo();
+            return;
+        }
+
         batch.begin();
         batch.draw(fundoMenu, 0, 0, 640, 480);
         batch.end();
@@ -62,6 +80,7 @@ public class Main extends ApplicationAdapter {
         shape.dispose();
         font.dispose();
         fundoMenu.dispose();
+        fundoJogo.dispose();
         goleiroParado.dispose();
         goleiroPulando.dispose();
     }
@@ -75,10 +94,15 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
+        if (telaAtual != Tela.MENU) {
+            return;
+        }
+
         float mouseX = Gdx.input.getX();
         float mouseY = 480 - Gdx.input.getY();
 
         if (botaoIniciar.contem(mouseX, mouseY)) {
+            telaAtual = Tela.JOGO;
             botaoIniciar.clicar();
         } else if (botaoComoJogar.contem(mouseX, mouseY)) {
             botaoComoJogar.clicar();
@@ -93,6 +117,23 @@ public class Main extends ApplicationAdapter {
         botaoIniciar.desenhar(shape, batch, font, layout);
         botaoComoJogar.desenhar(shape, batch, font, layout);
         botaoPontuacao.desenhar(shape, batch, font, layout);
+    }
+
+    private void desenharJogo() {
+        batch.begin();
+        batch.draw(fundoJogo, 0, 0, 640, 480);
+        goleiro.draw(batch);
+        batch.end();
+    }
+
+    private void atualizarJogo(float deltaTime) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+            goleiro.dive(Direction.LEFT);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+            goleiro.dive(Direction.RIGHT);
+        }
+
+        goleiro.update(deltaTime);
     }
 
     private void desenharGoleiro() {
