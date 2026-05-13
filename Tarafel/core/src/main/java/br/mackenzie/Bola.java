@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 public class Bola extends GameObject {
 
     private enum State {
-        IDLE, MOVING, ARRIVED
+        IDLE, SLOWMOTION, MOVING, ARRIVED
     }
     private State currentState = State.IDLE;
 
@@ -15,7 +15,8 @@ public class Bola extends GameObject {
     private float moveDuration = 0.6f;
     private float scaleDefault = 1.0f;  // Escala inicial (bola grande, perto do jogador)
     private float scaleTarget  = 0.3f;  // Escala final  (bola pequena, longe no gol)
-
+    private float slowMotionBound = 0.10f; // Percentual do trajeto em slow motion (10%)
+    private float slowMotionSpeed = 0.2f; // Quão lento é o slow motion (20% da velocidade normal)
 
     public Bola(String texturePath, String soundPath) {
         super(texturePath, soundPath);
@@ -29,9 +30,11 @@ public class Bola extends GameObject {
 
     @Override
     public void update(float deltaTime) {
-        if (currentState != State.MOVING) return;
+        if (currentState == State.IDLE || currentState == State.ARRIVED) return;
 
-        stateTime += deltaTime;
+        float speed = (currentState == State.SLOWMOTION) ? slowMotionSpeed : 1f;
+        stateTime += deltaTime * speed;
+
         float progress = Math.min(stateTime / moveDuration, 1f);
 
         float newX = MathUtils.lerp(xPosDefault, xPosTarget, progress);
@@ -40,6 +43,11 @@ public class Bola extends GameObject {
 
         float newScale = MathUtils.lerp(scaleDefault, scaleTarget, progress);
         sprite.setScale(newScale);
+
+        // Quando a bola passou o trecho inicial, sai do slow motion
+        if (currentState == State.SLOWMOTION && progress >= slowMotionBound) {
+            currentState = State.MOVING;
+        }
 
         if (progress >= 1f) {
             stateTime = 0f;
@@ -85,7 +93,7 @@ public class Bola extends GameObject {
     }
 
     private void prepareShoot() {
-        currentState = State.MOVING;
+        currentState = State.SLOWMOTION;
         stateTime = 0f;
     }
 
