@@ -7,6 +7,9 @@ public class GameState {
     private int lives = 3;
     private int level = 1;
     private int levelDefenses;
+        
+    private float ball_speed;
+    private float more_speed;
 
     public static final int life_max = 3;
     public static final int defensesAdvance = 5;
@@ -96,6 +99,10 @@ public class GameState {
         }
     }
 
+    public float getBallMotion() {
+        return ball_speed + ((level - 1) * more_speed);
+    }
+
     private void addScore(int points) {
         this.score += points;
     }
@@ -120,5 +127,4 @@ public class GameState {
         return levelDefenses;
     }
 
-    
 }
