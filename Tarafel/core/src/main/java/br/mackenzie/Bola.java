@@ -13,8 +13,8 @@ public class Bola extends GameObject {
     private float xPosTarget, yPosTarget;
     private float stateTime = 0f;
     private float moveDuration = 0.6f;
-    private float scaleDefault = 1.0f;  // Escala inicial (bola grande, perto do jogador)
-    private float scaleTarget  = 0.3f;  // Escala final  (bola pequena, longe no gol)
+    private float scaleDefault = 0.35f;  // Escala inicial (bola grande, perto do jogador)
+    private float scaleTarget  = 0.12f;  // Escala final  (bola pequena, longe no gol)
 
 
     public Bola(String texturePath, String soundPath) {
@@ -113,4 +113,3 @@ public class Bola extends GameObject {
     // Necessário implementar detecção de colisão entre a bola e o goleiro
     // Bola ajusta trajetória caso o goleiro defenda
 }
-

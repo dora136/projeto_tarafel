@@ -31,7 +31,7 @@ public class GameState {
         if (gameOver || paused)
             return;
 
-        addScore(1);
+        addScore(10);
         levelDefenses++;
         checkLevelProgress();
     }
@@ -62,6 +62,7 @@ public class GameState {
         score = 0;
         lives = life_max;
         level = 1;
+        levelDefenses = 0;
         gameOver = false;
     }
 
@@ -120,5 +121,8 @@ public class GameState {
         return levelDefenses;
     }
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
     
 }
