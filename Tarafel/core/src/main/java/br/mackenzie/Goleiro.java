@@ -17,10 +17,12 @@ public class Goleiro extends GameObject {
     private Texture diveTexture;
     private Texture fallTexture;
     private float xPosDefault, yPosDefault;
+    private float xPosStart;
     private float xPosTarget, yPosTarget;
     private float stateTime = 0f;
     private float diveDuration = 0.5f; // Duração do pulo em segundos
     private float diveDistanceX = 100f; // Distância horizontal do pulo
+    private float sideDiveHeight = 35f; // Altura do arco nos pulos laterais
     private Direction diveDirection;
     private boolean diveQueued;
     private static final float SPRITE_SCALE = 0.5f;
@@ -69,12 +71,22 @@ public class Goleiro extends GameObject {
             sprite.setPosition(xPosTarget, yPosTarget);
             stateTime = 0f;
             currentState = State.DIVE_OVER;
-            switchTexture(AltTextures.DIVE_OVER);
+            if (diveDirection == Direction.UP) {
+                switchTexture(AltTextures.IDLE);
+            } else {
+                switchTexture(AltTextures.DIVE_OVER);
+            }
             return;
         }
 
-        float newX = MathUtils.lerp(xPosDefault, xPosTarget, progress);
-        sprite.setPosition(newX, yPosDefault);
+        float newX = MathUtils.lerp(xPosStart, xPosTarget, progress);
+        float newY = MathUtils.lerp(yPosDefault, yPosTarget, progress);
+
+        if (diveDirection == Direction.LEFT || diveDirection == Direction.RIGHT) {
+            newY += MathUtils.sin(progress * MathUtils.PI) * sideDiveHeight;
+        }
+
+        sprite.setPosition(newX, newY);
     }
 
     public void updateDiveOver() {
@@ -93,15 +105,14 @@ public class Goleiro extends GameObject {
     }
  
     public void resetPosition() {
+        switchTexture(AltTextures.IDLE);
         sprite.setPosition(xPosDefault, yPosDefault);
-        sprite.setFlip(false, false);
         xPosTarget = xPosDefault;
         yPosTarget = yPosDefault;
         currentState = State.IDLE;
         diveDirection = null;
         diveQueued = false;
         stateTime = 0f;
-        switchTexture(AltTextures.IDLE);
     }
 
     public void switchTexture(AltTextures alt) {
@@ -109,14 +120,17 @@ public class Goleiro extends GameObject {
             case IDLE:
                 aplicarTextura(texture);
                 sprite.setFlip(false, false);
+                sprite.setRotation(0f);
                 break;
             case DIVING:
                 aplicarTextura(diveTexture);
                 sprite.setFlip(diveDirection == Direction.LEFT, false);
+                sprite.setRotation(diveDirection == Direction.UP ? 90f : 0f);
                 break;
             case DIVE_OVER:
                 aplicarTextura(fallTexture);
                 sprite.setFlip(diveDirection == Direction.LEFT, false);
+                sprite.setRotation(0f);
                 break;
             default:
                 break;
@@ -124,10 +138,13 @@ public class Goleiro extends GameObject {
     }
 
     private void aplicarTextura(Texture novaTextura) {
+        float centerX = sprite.getX() + sprite.getWidth() / 2f;
+        float y = sprite.getY();
         sprite.setRegion(novaTextura);
         sprite.setSize(novaTextura.getWidth(), novaTextura.getHeight());
         sprite.setOriginCenter();
         sprite.setScale(SPRITE_SCALE, SPRITE_SCALE);
+        sprite.setPosition(centerX - sprite.getWidth() / 2f, y);
     }
 
     public void dive() {
@@ -138,14 +155,18 @@ public class Goleiro extends GameObject {
         stateTime = 0f;
         switchTexture(AltTextures.DIVING);
 
+        float defaultCenterX = xPosDefault + texture.getWidth() / 2f;
+        xPosStart = defaultCenterX - sprite.getWidth() / 2f;
+        sprite.setPosition(xPosStart, yPosDefault);
+
         if (diveDirection == Direction.LEFT) {
-            xPosTarget = xPosDefault - diveDistanceX;
+            xPosTarget = defaultCenterX - diveDistanceX - sprite.getWidth() / 2f;
             yPosTarget = yPosDefault;
         } else if (diveDirection == Direction.RIGHT) {
-            xPosTarget = xPosDefault + diveDistanceX;
+            xPosTarget = defaultCenterX + diveDistanceX - sprite.getWidth() / 2f;
             yPosTarget = yPosDefault;
         } else if (diveDirection == Direction.UP) {
-            xPosTarget = xPosDefault;
+            xPosTarget = defaultCenterX - sprite.getWidth() / 2f;
             yPosTarget = yPosDefault + diveDistanceX;
         }
 
