@@ -91,16 +91,16 @@ public class Bola extends GameObject {
         if (currentState != State.IDLE) return;
         direction = Direction.LEFT;
         prepareShoot();
-        xPosTarget = xPosDefault - 200f;
-        yPosTarget = yPosDefault + 300f;
+        xPosTarget = xPosDefault - 185f; //185
+        yPosTarget = yPosDefault + 130f; //210
     }
 
     public void shootRight() {
         if (currentState != State.IDLE) return;
         direction = Direction.RIGHT;
         prepareShoot();
-        xPosTarget = xPosDefault + 200f;
-        yPosTarget = yPosDefault + 300f;
+        xPosTarget = xPosDefault + 185f; //185
+        yPosTarget = yPosDefault + 130f; //212
     }
 
     public void shootUp() {
@@ -108,7 +108,7 @@ public class Bola extends GameObject {
         direction = Direction.UP;
         prepareShoot();
         xPosTarget = xPosDefault;
-        yPosTarget = yPosDefault + 300f;
+        yPosTarget = yPosDefault + 225f; //300
     }
 
     private void prepareShoot() {

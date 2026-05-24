@@ -8,7 +8,7 @@ public class GameState {
     private int level = 1;
     private int levelDefenses;
 
-    public static final int life_max = 3;
+    public static final int life_max = 100;
     public static final int defensesAdvance = 5;
 
     private GameTransitionListener transitionListener;
