@@ -7,6 +7,7 @@ public class Bola extends GameObject {
     private enum State {
         IDLE, SLOWMOTION, MOVING, ARRIVED
     }
+
     private State currentState = State.IDLE;
 
     private float xPosDefault, yPosDefault;
@@ -17,6 +18,8 @@ public class Bola extends GameObject {
     private float scaleTarget  = 0.3f;  // Escala final  (bola pequena, longe no gol)
     private float slowMotionBound = 0.10f; // Percentual do trajeto em slow motion (10%)
     private float slowMotionSpeed = 0.2f; // Quão lento é o slow motion (20% da velocidade normal)
+
+    private Direction direction;
 
     public Bola(String texturePath, String soundPath) {
         super(texturePath, soundPath);
@@ -29,7 +32,7 @@ public class Bola extends GameObject {
     }
 
     @Override
-    public void update(float deltaTime) {
+    public void update(float deltaTime) { // Bola deve ter um método de update para cada estado
         if (currentState == State.IDLE || currentState == State.ARRIVED) return;
 
         float speed = (currentState == State.SLOWMOTION) ? slowMotionSpeed : 1f;
@@ -55,7 +58,7 @@ public class Bola extends GameObject {
         }
     }
 
-    public void shoot(String direction) {
+    public void shoot(String direction) { // Ajustar para depender no enum Direction
         switch (direction) {
             case "left":
                 shootLeft();
@@ -117,6 +120,12 @@ public class Bola extends GameObject {
     public boolean isIdle() {
         return currentState == State.IDLE;
     }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    // Implementar método que sinaliza para a bola que foi defendida e ajusta trajetória 
 
     // Necessário implementar detecção de colisão entre a bola e o goleiro
     // Bola ajusta trajetória caso o goleiro defenda

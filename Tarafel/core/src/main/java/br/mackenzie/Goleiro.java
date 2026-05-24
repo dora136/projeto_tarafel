@@ -21,6 +21,8 @@ public class Goleiro extends GameObject {
     private float stateTime = 0f;
     private float diveDuration = 0.5f; // Duração do pulo em segundos
     private float diveDistanceX = 100f; // Distância horizontal do pulo
+    private Direction diveDirection;
+    private boolean diveQueued;
 
 
     
@@ -109,20 +111,35 @@ public class Goleiro extends GameObject {
         }  
     }
 
-    public void dive(Direction direction) {
+    public void dive() {
         if (currentState != State.IDLE) return; // Evita iniciar um novo pulo se já estiver pulando
         currentState = State.DIVING;
         stateTime = 0f;
         switchTexture(AltTextures.DIVING);
-        if (direction == Direction.LEFT) {
+        if (diveDirection == Direction.LEFT) {
             xPosTarget = xPosDefault - diveDistanceX;
             yPosTarget = yPosDefault;
-        } else if (direction == Direction.RIGHT) {
+        } else if (diveDirection == Direction.RIGHT) {
             xPosTarget = xPosDefault + diveDistanceX;
             yPosTarget = yPosDefault;
+        } else if (diveDirection == Direction.UP) {
+            xPosTarget = xPosDefault;
+            //yPosTarget = yPosDefault + diveDistanceX; Ajustar para o goleiro pular para cima
         }
+        diveQueued = false; // Limpa a fila de pulo após iniciar o pulo
     }
 
+    public void queueDive(Direction direction) {
+        diveQueued = true;
+        diveDirection = direction;
+    }
 
+    public Direction getDiveDirection() {
+        return diveDirection;
+    }
+
+    public boolean isDiving() {
+        return currentState == State.DIVING;
+    }
     // Necessário implementar detecção de colisão entre a bola e o goleiro
 }

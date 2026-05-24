@@ -15,13 +15,13 @@ public class InputController {
     public void update() {
         if (keeperActionable) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-                goleiro.dive(Direction.LEFT);
+                goleiro.queueDive(Direction.LEFT);
                 keeperActionable = false; // Impede múltiplos pulos
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-                goleiro.dive(Direction.RIGHT);
+                goleiro.queueDive(Direction.RIGHT);
                 keeperActionable = false; // Impede múltiplos pulos
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-                goleiro.dive(Direction.UP);
+                goleiro.queueDive(Direction.UP);
                 keeperActionable = false; // Impede múltiplos pulos
             }
         }
@@ -29,6 +29,10 @@ public class InputController {
 
     public void keeperActionable(boolean actionable) {
         keeperActionable = actionable;
+    }
+
+    public boolean isKeeperActionable() {
+        return keeperActionable;
     }
 
 
