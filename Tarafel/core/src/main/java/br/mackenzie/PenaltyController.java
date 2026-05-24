@@ -43,7 +43,7 @@ public class PenaltyController {
         bola.resetPosition();
         inputController.keeperActionable(false);
         lastResult = PenaltyResult.NULL;
-        waitTimer = 1.0f;
+        waitTimer = 3.5f;
         currentTime = 0f;
         state = PenaltyState.WAITING;
     }

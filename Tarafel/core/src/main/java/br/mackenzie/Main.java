@@ -197,7 +197,7 @@ public class Main extends ApplicationAdapter {
         telaAtual = Tela.JOGO;
         gameState.reset();
         tempoMais10 = 0f;
-        tempoMensagem = 2.5f;
+        tempoMensagem = 3.0f;
         mensagemJogo = "Defenda com as setas";
         penaltyController.start();
         tocarMusicaNivel();
