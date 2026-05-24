@@ -33,6 +33,7 @@ public class Main extends ApplicationAdapter {
     private Bola bola;
     private GameState gameState;
     private Music musicaAtual;
+    private ComoJogarView comoJogarView;
     private Tela telaAtual = Tela.MENU;
     private String somAtual;
 
@@ -75,7 +76,7 @@ public class Main extends ApplicationAdapter {
             @Override public void onGoal() { mostrarMensagem("GOL!"); }
         });
         debugController = new DebugController(penaltyController, gameState);
-        iniciarJogo();
+        comoJogarView = new ComoJogarView();
 
         font.getData().setScale(1.4f);
 
@@ -103,7 +104,7 @@ public class Main extends ApplicationAdapter {
         batch.end();
 
         if (telaAtual == Tela.COMO_JOGAR) {
-            desenharComoJogar();
+            comoJogarView.desenhar(shape, batch, font, layout);
         } else {
             desenharMenu();
         }
@@ -166,36 +167,6 @@ public class Main extends ApplicationAdapter {
         botaoPontuacao.desenhar(shape, batch, font, layout);
     }
 
-    private void desenharComoJogar() {
-        shape.begin(ShapeRenderer.ShapeType.Filled);
-        shape.setColor(new Color(0.02f, 0.12f, 0.07f, 0.82f));
-        shape.rect(80, 70, 480, 330);
-        shape.end();
-
-        shape.begin(ShapeRenderer.ShapeType.Line);
-        shape.setColor(Color.WHITE);
-        shape.rect(80, 70, 480, 330);
-        shape.end();
-
-        batch.begin();
-        font.setColor(Color.WHITE);
-        font.getData().setScale(2.0f);
-        escreverTextoCentralizadoSemBegin("COMO JOGAR", 360);
-
-        font.getData().setScale(1.1f);
-        font.draw(batch, "1. A bola vai para esquerda ou direita.", 120, 305);
-        font.draw(batch, "2. Aperte A ou seta esquerda para defender a esquerda.", 120, 270);
-        font.draw(batch, "3. Aperte D ou seta direita para defender a direita.", 120, 235);
-        font.draw(batch, "4. Cada defesa vale +10 pontos.", 120, 200);
-        font.draw(batch, "5. A cada 5 defesas o nivel aumenta.", 120, 165);
-        font.draw(batch, "6. Se tomar gol, perde uma vida.", 120, 130);
-
-        font.getData().setScale(0.95f);
-        escreverTextoCentralizadoSemBegin("ESC para voltar ao menu", 95);
-        font.getData().setScale(1.4f);
-        batch.end();
-    }
-
     private void desenharJogo() {
         batch.begin();
         batch.draw(getFundoNivel(), 0, 0, 640, 480);
@@ -210,7 +181,6 @@ public class Main extends ApplicationAdapter {
     }
 
     private void atualizarJogo(float deltaTime) {
-        /* OLD LOGIC
         if (gameState.isGameOver()) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                 iniciarJogo();
@@ -218,104 +188,20 @@ public class Main extends ApplicationAdapter {
             return;
         }
 
-        if (direcaoChute != null && defesaEscolhida == null) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-                defesaEscolhida = Direction.LEFT;
-                goleiro.dive(Direction.LEFT);
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-                defesaEscolhida = Direction.RIGHT;
-                goleiro.dive(Direction.RIGHT);
-            }
-        }
-
-        goleiro.update(deltaTime);
-        bola.update(deltaTime);
-        atualizarTempos(deltaTime);
-
-        if (bola.isIdle()) {
-            tempoProximoChute -= deltaTime;
-            if (tempoProximoChute <= 0) {
-                chutarBola();
-            }
-        } else if (bola.isArrived()) {
-            resolverChute();
-        }
-        */
-
-        // TEMP
-        if (gameState.isGameOver()) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                iniciarJogo();
-            }
-            return;
-        }
         penaltyController.update(deltaTime);
         debugController.update();
         atualizarTempos(deltaTime);
     }
 
     private void iniciarJogo() {
-        /* OLD LOGIC
         telaAtual = Tela.JOGO;
         gameState.reset();
-        goleiro.resetPosition();
-        bola.resetPosition();
-        direcaoChute = null;
-        defesaEscolhida = null;
         tempoMais10 = 0f;
         tempoMensagem = 2.5f;
-        tempoProximoChute = 1.0f;
-        mensagemJogo = "Defenda com A/D ou setas";
-        tocarMusicaNivel();
-        */
-
-        // TEMP
-        telaAtual = Tela.JOGO;
-        gameState.reset();
-        tempoMais10 = 0f;
-        tempoMensagem = 0f;
-        mensagemJogo = "";
+        mensagemJogo = "Defenda com as setas";
         penaltyController.start();
-    }
-
-    /* OLD LOGIC
-    private void chutarBola() {
-        defesaEscolhida = null;
-
-        if (MathUtils.randomBoolean()) {
-            direcaoChute = "left";
-            bola.shootLeft();
-        } else {
-            direcaoChute = "right";
-            bola.shootRight();
-        }
-    }
-
-    private void resolverChute() {
-        boolean defendeu = ("left".equals(direcaoChute) && defesaEscolhida == Direction.LEFT)
-            || ("right".equals(direcaoChute) && defesaEscolhida == Direction.RIGHT);
-
-        if (defendeu) {
-            gameState.defense();
-            tempoMais10 = 0.8f;
-            mostrarMensagem("DEFESA!");
-        } else {
-            gameState.goal();
-            mostrarMensagem("GOL!");
-        }
-
-        bola.resetPosition();
-        direcaoChute = null;
-        defesaEscolhida = null;
-        tempoProximoChute = getIntervaloChute();
         tocarMusicaNivel();
     }
-
-    private float getIntervaloChute() {
-        int nivel = Math.min(gameState.getLevel(), 4);
-        return 1.2f - (nivel - 1) * 0.2f;
-    }
-    */
 
     private void atualizarTempos(float deltaTime) {
         if (tempoMais10 > 0) {
@@ -330,11 +216,6 @@ public class Main extends ApplicationAdapter {
     private void mostrarMensagem(String texto) {
         mensagemJogo = texto;
         tempoMensagem = 1.0f;
-    }
-
-    private float getIntervaloChute() {
-        int nivel = Math.min(gameState.getLevel(), 4);
-        return 1.2f - (nivel - 1) * 0.2f;
     }
 
     private Texture getFundoNivel() {
