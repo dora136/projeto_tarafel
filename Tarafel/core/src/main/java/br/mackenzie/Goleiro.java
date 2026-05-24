@@ -23,6 +23,7 @@ public class Goleiro extends GameObject {
     private float diveDistanceX = 100f; // Distância horizontal do pulo
     private Direction diveDirection;
     private boolean diveQueued;
+    private static final float SPRITE_SCALE = 0.5f;
 
 
     
@@ -30,14 +31,14 @@ public class Goleiro extends GameObject {
         super(texturePath, soundPath);
         this.diveTexture = new Texture(diveTexturePath);
         this.fallTexture = new Texture(fallTexturePath);
-        sprite.setScale(0.5f, 0.5f);
+        aplicarTextura(texture);
     }
 
     public Goleiro(String texturePath, String diveTexturePath, String fallTexturePath) {
         super(texturePath);
         this.diveTexture = new Texture(diveTexturePath);
         this.fallTexture = new Texture(fallTexturePath);
-        sprite.setScale(0.5f, 0.5f);
+        aplicarTextura(texture);
     }
 
     @Override
@@ -106,17 +107,27 @@ public class Goleiro extends GameObject {
     public void switchTexture(AltTextures alt) {
         switch (alt) {
             case IDLE:
-                sprite.setTexture(texture);
+                aplicarTextura(texture);
+                sprite.setFlip(false, false);
                 break;
             case DIVING:
-                sprite.setTexture(diveTexture);
+                aplicarTextura(diveTexture);
+                sprite.setFlip(diveDirection == Direction.LEFT, false);
                 break;
             case DIVE_OVER:
-                sprite.setTexture(fallTexture);
+                aplicarTextura(fallTexture);
+                sprite.setFlip(diveDirection == Direction.LEFT, false);
                 break;
             default:
                 break;
         }  
+    }
+
+    private void aplicarTextura(Texture novaTextura) {
+        sprite.setRegion(novaTextura);
+        sprite.setSize(novaTextura.getWidth(), novaTextura.getHeight());
+        sprite.setOriginCenter();
+        sprite.setScale(SPRITE_SCALE, SPRITE_SCALE);
     }
 
     public void dive() {
@@ -125,7 +136,6 @@ public class Goleiro extends GameObject {
 
         currentState = State.DIVING;
         stateTime = 0f;
-        sprite.setFlip(diveDirection == Direction.LEFT, false);
         switchTexture(AltTextures.DIVING);
 
         if (diveDirection == Direction.LEFT) {
