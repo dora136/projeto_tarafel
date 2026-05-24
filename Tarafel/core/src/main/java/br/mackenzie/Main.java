@@ -191,6 +191,7 @@ public class Main extends ApplicationAdapter {
         penaltyController.update(deltaTime);
         debugController.update();
         atualizarTempos(deltaTime);
+        tocarMusicaNivel();
     }
 
     private void iniciarJogo() {
