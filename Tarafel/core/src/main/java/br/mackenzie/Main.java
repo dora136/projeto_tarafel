@@ -36,15 +36,14 @@ public class Main extends ApplicationAdapter {
     private Tela telaAtual = Tela.MENU;
     private String somAtual;
 
+    private PenaltyController penaltyController;
+    private DebugController debugController;
     private Botao botaoIniciar;
     private Botao botaoComoJogar;
     private Botao botaoPontuacao;
     private float tempoAnimacao = 0;
-    private float tempoProximoChute = 1.0f;
     private float tempoMais10 = 0f;
     private float tempoMensagem = 0f;
-    private String direcaoChute;
-    private Direction defesaEscolhida;
     private String mensagemJogo = "";
 
     @Override
@@ -65,10 +64,18 @@ public class Main extends ApplicationAdapter {
         goleiroParado = new Texture("img/goleiro.png");
         goleiroPulando = new Texture("img/goleiro_pulando.png");
         goleiro = new Goleiro("img/goleiro.png", "img/goleiro_pulando.png", "img/goleiro_caido.png");
-        goleiro.setDefaultPosition(278, 70);
+        float centerX = Gdx.graphics.getWidth() / 2f;
+        goleiro.setDefaultPosition(centerX - goleiro.getSprite().getWidth() / 2f, 70);
         bola = new Bola("img/bola.png");
-        bola.setDefaultPosition(285, 8);
+        bola.setDefaultPosition(centerX - bola.getSprite().getWidth() / 2f, 8);
         gameState = new GameState();
+        penaltyController = new PenaltyController(goleiro, bola, gameState);
+        penaltyController.setListener(new PenaltyController.PenaltyListener() {
+            @Override public void onSave() { mostrarMensagem("DEFESA!"); }
+            @Override public void onGoal() { mostrarMensagem("GOL!"); }
+        });
+        debugController = new DebugController(penaltyController, gameState);
+        iniciarJogo();
 
         font.getData().setScale(1.4f);
 
@@ -203,6 +210,7 @@ public class Main extends ApplicationAdapter {
     }
 
     private void atualizarJogo(float deltaTime) {
+        /* OLD LOGIC
         if (gameState.isGameOver()) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                 iniciarJogo();
@@ -226,16 +234,28 @@ public class Main extends ApplicationAdapter {
 
         if (bola.isIdle()) {
             tempoProximoChute -= deltaTime;
-
             if (tempoProximoChute <= 0) {
                 chutarBola();
             }
         } else if (bola.isArrived()) {
             resolverChute();
         }
+        */
+
+        // TEMP
+        if (gameState.isGameOver()) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                iniciarJogo();
+            }
+            return;
+        }
+        penaltyController.update(deltaTime);
+        debugController.update();
+        atualizarTempos(deltaTime);
     }
 
     private void iniciarJogo() {
+        /* OLD LOGIC
         telaAtual = Tela.JOGO;
         gameState.reset();
         goleiro.resetPosition();
@@ -247,8 +267,18 @@ public class Main extends ApplicationAdapter {
         tempoProximoChute = 1.0f;
         mensagemJogo = "Defenda com A/D ou setas";
         tocarMusicaNivel();
+        */
+
+        // TEMP
+        telaAtual = Tela.JOGO;
+        gameState.reset();
+        tempoMais10 = 0f;
+        tempoMensagem = 0f;
+        mensagemJogo = "";
+        penaltyController.start();
     }
 
+    /* OLD LOGIC
     private void chutarBola() {
         defesaEscolhida = null;
 
@@ -280,6 +310,12 @@ public class Main extends ApplicationAdapter {
         tempoProximoChute = getIntervaloChute();
         tocarMusicaNivel();
     }
+
+    private float getIntervaloChute() {
+        int nivel = Math.min(gameState.getLevel(), 4);
+        return 1.2f - (nivel - 1) * 0.2f;
+    }
+    */
 
     private void atualizarTempos(float deltaTime) {
         if (tempoMais10 > 0) {

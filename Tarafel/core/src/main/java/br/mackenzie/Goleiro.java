@@ -93,6 +93,14 @@ public class Goleiro extends GameObject {
  
     public void resetPosition() {
         sprite.setPosition(xPosDefault, yPosDefault);
+        sprite.setFlip(false, false);
+        xPosTarget = xPosDefault;
+        yPosTarget = yPosDefault;
+        currentState = State.IDLE;
+        diveDirection = null;
+        diveQueued = false;
+        stateTime = 0f;
+        switchTexture(AltTextures.IDLE);
     }
 
     public void switchTexture(AltTextures alt) {
@@ -112,10 +120,14 @@ public class Goleiro extends GameObject {
     }
 
     public void dive() {
-        if (currentState != State.IDLE) return; // Evita iniciar um novo pulo se já estiver pulando
+        if (currentState != State.IDLE) return;
+        if (!diveQueued) return; // No input — stay idle, don't animate
+
         currentState = State.DIVING;
         stateTime = 0f;
+        sprite.setFlip(diveDirection == Direction.LEFT, false);
         switchTexture(AltTextures.DIVING);
+
         if (diveDirection == Direction.LEFT) {
             xPosTarget = xPosDefault - diveDistanceX;
             yPosTarget = yPosDefault;
@@ -124,9 +136,10 @@ public class Goleiro extends GameObject {
             yPosTarget = yPosDefault;
         } else if (diveDirection == Direction.UP) {
             xPosTarget = xPosDefault;
-            //yPosTarget = yPosDefault + diveDistanceX; Ajustar para o goleiro pular para cima
+            yPosTarget = yPosDefault + diveDistanceX;
         }
-        diveQueued = false; // Limpa a fila de pulo após iniciar o pulo
+
+        diveQueued = false;
     }
 
     public void queueDive(Direction direction) {

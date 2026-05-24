@@ -1,90 +1,142 @@
 package br.mackenzie;
 
 public class PenaltyController {
-    private Goleiro goleiro;
-    private Bola bola;
-    private InputController inputController;
-    private float playerReactionTime = 0.8f; // Tempo em segundos para o jogador reagir enquanto a bola se mexe em slow-motion
-    // Ajustar o valor acima torna o jogo mais fácil ou difícl
-    // Tempo precisa ser passado para a bola (tempo em slow-mo) e para o InputController (tempo que o jogador pode realizar inputs)
-    // Timer interno determina se o goleiro pode ou não pular
 
-    private float penaltyTravelTime = 2.0f; // Tempo em segundos que a bola leva para chegar ao gol
-    private float totalPenaltyTime = playerReactionTime + penaltyTravelTime + 1f; // Tempo total do penalty, incluindo reação do goleiro, bola em movimento, e finalização
-    private float currentTime = 0f;
-    private boolean penaltyInProgress = false;
+    public interface PenaltyListener {
+        void onSave();
+        void onGoal();
+    }
 
-    private enum PenaltyResult {
+    public enum PenaltyResult {
         NULL, GOAL, SAVE
     }
-    private PenaltyResult penaltyResult = PenaltyResult.NULL;
 
     private enum PenaltyState {
-        NOT_STARTED, SLOW_MOTION, IN_PROGRESS, ENDING, DONE
+        WAITING, SLOW_MOTION, IN_PROGRESS
     }
-    private PenaltyState penaltyState = PenaltyState.NOT_STARTED;
 
+    private final Goleiro goleiro;
+    private final Bola bola;
+    private final GameState gameState;
+    private final InputController inputController;
+    private PenaltyListener listener;
 
-    public PenaltyController(Goleiro goleiro, Bola bola) {
+    private PenaltyState state = PenaltyState.WAITING;
+    private PenaltyResult lastResult = PenaltyResult.NULL;
+    private float currentTime = 0f;
+    private float waitTimer = 0f;
+
+    public PenaltyController(Goleiro goleiro, Bola bola, GameState gameState) {
         this.goleiro = goleiro;
         this.bola = bola;
+        this.gameState = gameState;
         this.inputController = new InputController(goleiro);
     }
 
-    public void penalty() {
+    public void setListener(PenaltyListener listener) {
+        this.listener = listener;
+    }
+
+    /** Call once to begin the penalty loop after a game start/reset. */
+    public void start() {
         goleiro.resetPosition();
         bola.resetPosition();
-        // Goleiro acionável
-        inputController.keeperActionable(true);
-        // Bola chuta direção aleatória
-        bola.shoot(RandomPicker.pickRandom(Direction.class));
-        currentTime = 0f; // Reinicia o timer
-        penaltyInProgress = true;
-
-        penaltyResult = PenaltyResult.NULL;
-        penaltyState = PenaltyState.SLOW_MOTION; // Inicia o penalty em slow-motion
+        inputController.keeperActionable(false);
+        lastResult = PenaltyResult.NULL;
+        waitTimer = 1.0f;
+        currentTime = 0f;
+        state = PenaltyState.WAITING;
     }
 
     public void update(float deltaTime) {
-        if (penaltyInProgress) {
-            updatePenalty(deltaTime);
+        if (gameState.isGameOver()) {
+            goleiro.update(deltaTime);
+            return;
         }
-    }
 
-    public void updatePenalty(float deltaTime) {
-        currentTime += deltaTime;
-        bola.update(deltaTime);
         goleiro.update(deltaTime);
-        if (penaltyState == PenaltyState.SLOW_MOTION) {
-            inputController.update();
-            if (currentTime >= playerReactionTime) {
-                inputController.keeperActionable(false); // Goleiro não pode mais reagir
-                goleiro.dive(); // Executa o pulo quando a bola terminar o slow-motion
-                penaltyState = PenaltyState.IN_PROGRESS; // Bola continua se movendo normalmente
-            }
-        }
-        if (currentTime >= penaltyTravelTime + playerReactionTime && penaltyState == PenaltyState.IN_PROGRESS) {
-            penaltyState = PenaltyState.ENDING; // Finaliza o penalty
-            if (goleiro.isDiving() && goleiro.getDiveDirection() == bola.getDirection()) {
-                // Goleiro defendeu
-                penaltyResult = PenaltyResult.SAVE;
-                // Bola deve ajustar trajetória para simular a defesa
-                // Som de defesa
-            } else {
-                // Gol
-                penaltyResult = PenaltyResult.GOAL;
-                // Bola segue trajetória normal
-                // Som de gol
-            }
-        }
-        if (currentTime >= totalPenaltyTime && penaltyState == PenaltyState.ENDING) {
-            penaltyInProgress = false;
-            penaltyState = PenaltyState.DONE; // Penalty finalizado, resultado definido
-        }
+        bola.update(deltaTime);
 
+        switch (state) {
+            case WAITING:
+                waitTimer -= deltaTime;
+                if (waitTimer <= 0f) {
+                    shootPenalty();
+                }
+                break;
+            case SLOW_MOTION:
+            case IN_PROGRESS:
+                updatePenalty(deltaTime);
+                break;
+        }
     }
 
-    public PenaltyResult getPenaltyResult() {
-        return penaltyResult;
+    private void shootPenalty() {
+        goleiro.resetPosition();
+        bola.resetPosition();
+        inputController.keeperActionable(true);
+        bola.shoot(RandomPicker.pickRandom(Direction.class));
+        currentTime = 0f;
+        state = PenaltyState.SLOW_MOTION;
+    }
+
+    private void updatePenalty(float deltaTime) {
+        currentTime += deltaTime;
+
+        if (state == PenaltyState.SLOW_MOTION) {
+            inputController.update();
+            if (currentTime >= getReactionTime()) {
+                inputController.keeperActionable(false);
+                goleiro.dive();
+                bola.endSlowMotion(); // keeper dives and ball accelerates at the same moment
+                state = PenaltyState.IN_PROGRESS;
+            }
+        }
+
+        if (state == PenaltyState.IN_PROGRESS && bola.isArrived()) {
+            resolveResult();
+        }
+    }
+
+    private void resolveResult() {
+        boolean saved = goleiro.getDiveDirection() != null
+            && goleiro.getDiveDirection() == bola.getDirection();
+
+        if (saved) {
+            lastResult = PenaltyResult.SAVE;
+            bola.deflect();
+            gameState.defense();
+            if (listener != null) listener.onSave();
+        } else {
+            lastResult = PenaltyResult.GOAL;
+            gameState.goal();
+            if (listener != null) listener.onGoal();
+        }
+
+        waitTimer = getWaitInterval();
+        state = PenaltyState.WAITING;
+    }
+
+    /** Reaction window shrinks from 0.8s (level 1) to 0.5s (level 4). */
+    private float getReactionTime() {
+        int level = Math.min(gameState.getLevel(), 4);
+        return 0.8f - (level - 1) * 0.1f;
+    }
+
+    /** Wait interval between kicks shrinks from 1.2s (level 1) to 0.6s (level 4). */
+    private float getWaitInterval() {
+        int level = Math.min(gameState.getLevel(), 4);
+        return 1.2f - (level - 1) * 0.2f;
+    }
+
+    /** Skips the current wait timer and fires the next penalty immediately. */
+    public void triggerNow() {
+        if (state == PenaltyState.WAITING) {
+            waitTimer = 0f;
+        }
+    }
+
+    public PenaltyResult getLastResult() {
+        return lastResult;
     }
 }

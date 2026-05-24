@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 public class Bola extends GameObject {
 
     private enum State {
-        IDLE, SLOWMOTION, MOVING, ARRIVED
+        IDLE, SLOWMOTION, MOVING, ARRIVED, RETURNING
     }
 
     private State currentState = State.IDLE;
@@ -16,7 +16,6 @@ public class Bola extends GameObject {
     private float moveDuration = 0.6f;
     private float scaleDefault = 1.0f;  // Escala inicial (bola grande, perto do jogador)
     private float scaleTarget  = 0.3f;  // Escala final  (bola pequena, longe no gol)
-    private float slowMotionBound = 0.10f; // Percentual do trajeto em slow motion (10%)
     private float slowMotionSpeed = 0.2f; // Quão lento é o slow motion (20% da velocidade normal)
 
     private Direction direction;
@@ -32,25 +31,21 @@ public class Bola extends GameObject {
     }
 
     @Override
-    public void update(float deltaTime) { // Bola deve ter um método de update para cada estado
+    public void update(float deltaTime) {
         if (currentState == State.IDLE || currentState == State.ARRIVED) return;
+
+        if (currentState == State.RETURNING) {
+            updateReturning(deltaTime);
+            return;
+        }
 
         float speed = (currentState == State.SLOWMOTION) ? slowMotionSpeed : 1f;
         stateTime += deltaTime * speed;
 
         float progress = Math.min(stateTime / moveDuration, 1f);
-
-        float newX = MathUtils.lerp(xPosDefault, xPosTarget, progress);
-        float newY = MathUtils.lerp(yPosDefault, yPosTarget, progress);
-        sprite.setPosition(newX, newY);
-
-        float newScale = MathUtils.lerp(scaleDefault, scaleTarget, progress);
-        sprite.setScale(newScale);
-
-        // Quando a bola passou o trecho inicial, sai do slow motion
-        if (currentState == State.SLOWMOTION && progress >= slowMotionBound) {
-            currentState = State.MOVING;
-        }
+        sprite.setPosition(MathUtils.lerp(xPosDefault, xPosTarget, progress),
+                           MathUtils.lerp(yPosDefault, yPosTarget, progress));
+        sprite.setScale(MathUtils.lerp(scaleDefault, scaleTarget, progress));
 
         if (progress >= 1f) {
             stateTime = 0f;
@@ -58,24 +53,43 @@ public class Bola extends GameObject {
         }
     }
 
-    public void shoot(String direction) { // Ajustar para depender no enum Direction
-        switch (direction) {
-            case "left":
-                shootLeft();
-                break;
-            case "right":
-                shootRight();
-                break;
-            case "up":
-                shootUp();
-                break;
-            default:
-                break;
+    private void updateReturning(float deltaTime) {
+        stateTime += deltaTime;
+        float progress = Math.min(stateTime / moveDuration, 1f);
+        sprite.setPosition(MathUtils.lerp(xPosTarget, xPosDefault, progress),
+                           MathUtils.lerp(yPosTarget, yPosDefault, progress));
+        sprite.setScale(MathUtils.lerp(scaleTarget, scaleDefault, progress));
+        if (progress >= 1f) {
+            resetPosition();
+        }
+    }
+
+    /** Called by PenaltyController when reaction time expires — ball transitions to full speed. */
+    public void endSlowMotion() {
+        if (currentState == State.SLOWMOTION) {
+            currentState = State.MOVING;
+        }
+    }
+
+    /** Called by PenaltyController on a save — ball retraces its path back to origin. */
+    public void deflect() {
+        if (currentState == State.ARRIVED) {
+            currentState = State.RETURNING;
+            stateTime = 0f;
+        }
+    }
+
+    public void shoot(Direction dir) {
+        switch (dir) {
+            case LEFT:  shootLeft();  break;
+            case RIGHT: shootRight(); break;
+            case UP:    shootUp();    break;
         }
     }
 
     public void shootLeft() {
         if (currentState != State.IDLE) return;
+        direction = Direction.LEFT;
         prepareShoot();
         xPosTarget = xPosDefault - 200f;
         yPosTarget = yPosDefault + 300f;
@@ -83,6 +97,7 @@ public class Bola extends GameObject {
 
     public void shootRight() {
         if (currentState != State.IDLE) return;
+        direction = Direction.RIGHT;
         prepareShoot();
         xPosTarget = xPosDefault + 200f;
         yPosTarget = yPosDefault + 300f;
@@ -90,6 +105,7 @@ public class Bola extends GameObject {
 
     public void shootUp() {
         if (currentState != State.IDLE) return;
+        direction = Direction.UP;
         prepareShoot();
         xPosTarget = xPosDefault;
         yPosTarget = yPosDefault + 300f;
