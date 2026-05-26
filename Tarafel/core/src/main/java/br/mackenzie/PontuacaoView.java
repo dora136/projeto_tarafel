@@ -14,10 +14,10 @@ public class PontuacaoView {
 
     private final String[] regras = {
         "Pontos por defesa:",
-        "  Nivel 1 (Facil)      = 10 pts por defesa",
-        "  Nivel 2 (Medio)      = 20 pts por defesa",
-        "  Nivel 3 (Dificil)    = 30 pts por defesa",
-        "  Nivel 4 (Impossivel) = 40 pts por defesa",
+        "  Nivel 1 (Facil)            = 10 pts por defesa",
+        "  Nivel 2 (Medio)          = 20 pts por defesa",
+        "  Nivel 3 (Dificil)          = 30 pts por defesa",
+        "  Nivel 4 (Impossivel)  = 40 pts por defesa",
         "Bonus de nivel perfeito:",
         "  Defender todos os 5 penaltis sem levar",
         "  gol garante +100 pontos extras!",
