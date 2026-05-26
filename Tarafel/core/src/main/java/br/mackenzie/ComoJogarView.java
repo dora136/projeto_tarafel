@@ -10,7 +10,7 @@ public class ComoJogarView {
     private static final float PAINEL_X = 70f;
     private static final float PAINEL_Y = 58f;
     private static final float PAINEL_LARGURA = 500f;
-    private static final float PAINEL_ALTURA = 350f;
+    private static final float PAINEL_ALTURA = 380f;
 
     private final String[] regras = {
         "1. Clique em INICIAR para comecar a partida.",
@@ -29,10 +29,10 @@ public class ComoJogarView {
         batch.begin();
         font.setColor(Color.WHITE);
         font.getData().setScale(2.0f);
-        desenharTextoCentralizado(batch, font, layout, "COMO JOGAR", 365);
+        desenharTextoCentralizado(batch, font, layout, "COMO JOGAR", 396);
 
         font.getData().setScale(1.05f);
-        float y = 312;
+        float y = 346;
 
         for (String regra : regras) {
             font.draw(batch, regra, 110, y);
