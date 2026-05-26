@@ -47,6 +47,11 @@ public class Bola extends GameObject {
                            MathUtils.lerp(yPosDefault, yPosTarget, progress));
         sprite.setScale(MathUtils.lerp(scaleDefault, scaleTarget, progress));
 
+        // Quando a bola passou o trecho inicial, sai do slow motion
+        if (currentState == State.SLOWMOTION && progress >= slowMotionBound) {
+            currentState = State.MOVING;
+        }
+
         if (progress >= 1f) {
             stateTime = 0f;
             currentState = State.ARRIVED;
