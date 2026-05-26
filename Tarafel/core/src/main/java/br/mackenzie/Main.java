@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
     private enum Tela {
-        MENU, COMO_JOGAR, JOGO
+        MENU, COMO_JOGAR, PONTUACAO, JOGO
     }
 
     private SpriteBatch batch;
@@ -35,6 +35,7 @@ public class Main extends ApplicationAdapter {
     private ComoJogarView comoJogarView;
     private Tela telaAtual = Tela.MENU;
     private String somAtual;
+    private PontuacaoView pontuacaoView;
 
     private PenaltyController penaltyController;
     private DebugController debugController;
@@ -76,6 +77,7 @@ public class Main extends ApplicationAdapter {
         });
         debugController = new DebugController(penaltyController, gameState);
         comoJogarView = new ComoJogarView();
+        pontuacaoView = new PontuacaoView();
 
         font.getData().setScale(1.4f);
 
@@ -104,6 +106,8 @@ public class Main extends ApplicationAdapter {
 
         if (telaAtual == Tela.COMO_JOGAR) {
             comoJogarView.desenhar(shape, batch, font, layout);
+        } else if (telaAtual == Tela.PONTUACAO) {
+            pontuacaoView.desenhar(shape, batch, font, layout);
         } else {
             desenharMenu();
         }
@@ -154,6 +158,7 @@ public class Main extends ApplicationAdapter {
             telaAtual = Tela.COMO_JOGAR;
             botaoComoJogar.clicar();
         } else if (botaoPontuacao.contem(mouseX, mouseY)) {
+            telaAtual = Tela.PONTUACAO;
             botaoPontuacao.clicar();
         }
     }

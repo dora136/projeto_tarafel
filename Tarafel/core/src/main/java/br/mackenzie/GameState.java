@@ -7,6 +7,8 @@ public class GameState {
     private int lives = 3;
     private int level = 1;
     private int levelDefenses;
+    private boolean perfectLevel = true;
+
 
     public static final int life_max = 3;
     public static final int defensesAdvance = 5;
@@ -31,23 +33,30 @@ public class GameState {
         if (gameOver || paused)
             return;
 
-        addScore(10);
+        addScore(10 * level);
         levelDefenses++;
         checkLevelProgress();
+
+
     }
 
     public void goal() {
         if (gameOver || paused)
             return;
 
+        perfectLevel = false;
         removeLife(1);
         checkGameOver();
     }
 
     public void checkLevelProgress() {
         if (levelDefenses >= defensesAdvance) {
+            if (perfectLevel) {
+                addScore(100); // Bônus por nível perfeito
+            }
             level++;
             levelDefenses = 0;
+            perfectLevel = true;
 
             if (transitionListener != null) {
                 transitionListener.onNextLevel(level);
@@ -64,6 +73,7 @@ public class GameState {
         level = 1;
         levelDefenses = 0;
         gameOver = false;
+        perfectLevel = true;
     }
 
     public void pause() {

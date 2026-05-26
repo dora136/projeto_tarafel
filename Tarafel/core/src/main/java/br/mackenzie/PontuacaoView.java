@@ -6,20 +6,21 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class ComoJogarView {
+public class PontuacaoView {
     private static final float PAINEL_X = 70f;
     private static final float PAINEL_Y = 50f;
     private static final float PAINEL_LARGURA = 500f;
     private static final float PAINEL_ALTURA = 380f;
 
     private final String[] regras = {
-        "1. Clique em INICIAR para comecar a partida.",
-        "2. A bola pode ir para esquerda, direita ou cima.",
-        "3. Escolha a defesa com as setas do teclado.",
-        "4. Esquerda, direita e cima sao direcoes validas.",
-        "5. A cada 5 defesas o nivel aumenta.",
-        "6. Se tomar gol, voce perde uma vida.",
-        "8. Com 0 vidas, o jogo acaba."
+        "Pontos por defesa:",
+        "  Nivel 1 (Facil)      = 10 pts por defesa",
+        "  Nivel 2 (Medio)      = 20 pts por defesa",
+        "  Nivel 3 (Dificil)    = 30 pts por defesa",
+        "  Nivel 4 (Impossivel) = 40 pts por defesa",
+        "Bonus de nivel perfeito:",
+        "  Defender todos os 5 penaltis sem levar",
+        "  gol garante +100 pontos extras!",
     };
 
     public void desenhar(ShapeRenderer shape, SpriteBatch batch, BitmapFont font, GlyphLayout layout) {
@@ -28,7 +29,7 @@ public class ComoJogarView {
         batch.begin();
         font.setColor(Color.WHITE);
         font.getData().setScale(2.0f);
-        desenharTextoCentralizado(batch, font, layout, "COMO JOGAR", 396);
+        desenharTextoCentralizado(batch, font, layout, "PONTUACAO", 396);
 
         font.getData().setScale(1.05f);
         float y = 346;
