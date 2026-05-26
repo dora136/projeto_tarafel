@@ -14,8 +14,8 @@ public class Bola extends GameObject {
     private float xPosTarget, yPosTarget;
     private float stateTime = 0f;
     private float moveDuration = 0.6f;
-    private float scaleDefault = 1.0f;  // Escala inicial (bola grande, perto do jogador)
-    private float scaleTarget  = 0.3f;  // Escala final  (bola pequena, longe no gol)
+    private float scaleDefault = 0.5f;  // Escala inicial (bola grande, perto do jogador)
+    private float scaleTarget  = 0.2f;  // Escala final  (bola pequena, longe no gol)
     private float slowMotionSpeed = 0.2f; // Quão lento é o slow motion (20% da velocidade normal)
 
     private Direction direction;
@@ -92,7 +92,7 @@ public class Bola extends GameObject {
         direction = Direction.LEFT;
         prepareShoot();
         xPosTarget = xPosDefault - 185f; //185
-        yPosTarget = yPosDefault + 130f; //210
+        yPosTarget = yPosDefault + 100f; //210
     }
 
     public void shootRight() {
@@ -100,7 +100,7 @@ public class Bola extends GameObject {
         direction = Direction.RIGHT;
         prepareShoot();
         xPosTarget = xPosDefault + 185f; //185
-        yPosTarget = yPosDefault + 130f; //212
+        yPosTarget = yPosDefault + 100f; //212
     }
 
     public void shootUp() {

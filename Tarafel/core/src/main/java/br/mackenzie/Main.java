@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -66,7 +65,7 @@ public class Main extends ApplicationAdapter {
         goleiroPulando = new Texture("img/goleiro_pulando.png");
         goleiro = new Goleiro("img/goleiro.png", "img/goleiro_pulando.png", "img/goleiro_caido.png");
         float centerX = Gdx.graphics.getWidth() / 2f;
-        goleiro.setDefaultPosition(centerX - goleiro.getSprite().getWidth() / 2f, 70);
+        goleiro.setDefaultPosition(centerX - goleiro.getSprite().getWidth() / 2f, 100);
         bola = new Bola("img/bola.png");
         bola.setDefaultPosition(centerX - bola.getSprite().getWidth() / 2f, 8);
         gameState = new GameState();

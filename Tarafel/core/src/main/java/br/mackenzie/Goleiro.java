@@ -22,6 +22,7 @@ public class Goleiro extends GameObject {
     private float stateTime = 0f;
     private float diveDuration = 0.5f; // Duração do pulo em segundos
     private float diveDistanceX = 100f; // Distância horizontal do pulo
+    private float diveDistanceY = 75f; // Distância vertical do pulo
     private float sideDiveHeight = 35f; // Altura do arco nos pulos laterais
     private Direction diveDirection;
     private boolean diveQueued;
@@ -167,7 +168,7 @@ public class Goleiro extends GameObject {
             yPosTarget = yPosDefault;
         } else if (diveDirection == Direction.UP) {
             xPosTarget = defaultCenterX - sprite.getWidth() / 2f;
-            yPosTarget = yPosDefault + diveDistanceX;
+            yPosTarget = yPosDefault + diveDistanceY;
         }
 
         diveQueued = false;
