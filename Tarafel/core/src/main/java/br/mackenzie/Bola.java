@@ -17,6 +17,7 @@ public class Bola extends GameObject {
     private float scaleDefault = 0.5f;  // Escala inicial (bola grande, perto do jogador)
     private float scaleTarget  = 0.2f;  // Escala final  (bola pequena, longe no gol)
     private float slowMotionSpeed = 0.2f; // Quão lento é o slow motion (20% da velocidade normal)
+    private float slowMotionBound = 0.3f; // Fração do trajeto em slow motion antes de acelerar
 
     private Direction direction;
 
